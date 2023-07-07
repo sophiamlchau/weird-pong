@@ -10,31 +10,45 @@ from pygame.locals import (
     QUIT,
 )
 
+# Constants
+SCREEN_WIDTH = 900
+SCREEN_HEIGHT = 600
+WHITE = (255,255,255)
+BLACK = (0,0,0)
+
 # Player class
 class Player(pygame.sprite.Sprite):
     # Constructor, draws sprite
     def __init__(self):
         super(Player, self).__init__()
         self.surf = pygame.Surface((25, 75))
-        self.surf.fill((255, 255, 255))
+        self.surf.fill(WHITE)
+
+        self.posy = SCREEN_HEIGHT // 2
+        self.posx = SCREEN_WIDTH - (SCREEN_WIDTH//6)
+        self.speed = 0.5
+
         # Determining where the player spawns
         self.rect = self.surf.get_rect(
             center=(
-                SCREEN_WIDTH - (SCREEN_WIDTH//6), 
-                SCREEN_HEIGHT // 2
+                self.posx, 
+                self.posy
             )
         )
 
     def update(self, pressed_keys):
         # Movement information
         if pressed_keys[K_UP]:
-            self.rect.move_ip(0, -1)
+            self.posy = self.posy + (self.speed * -1)
         if pressed_keys[K_DOWN]:
-            self.rect.move_ip(0, 1)
-        if pressed_keys[K_LEFT]:
-            self.rect.move_ip(-1, 0)
-        if pressed_keys[K_RIGHT]:
-            self.rect.move_ip(1, 0)
+            self.posy = self.posy + (self.speed * 1)
+
+        self.rect = self.surf.get_rect(
+        center=(
+            self.posx, 
+            self.posy
+        )
+        )
 
         # Making sure we don't go off screen
         if self.rect.left < 0:
@@ -53,32 +67,61 @@ class Ball(pygame.sprite.Sprite):
         super(Ball, self).__init__()
         self.width = 25
         self.height = 25
-        self.speed = 1
+        self.speed = 0.25
+        self.xFac = 1
+        self.yFac = -1
+        self.posx = SCREEN_WIDTH - (SCREEN_WIDTH - (SCREEN_WIDTH//8))
+        self.posy = SCREEN_HEIGHT // 2
 
         self.surf = pygame.Surface((self.width, self.height))
 
         # self.surf, color, width and height, radius
-        pygame.draw.circle(self.surf, (255,255,255), (self.width//2, self.height//2), 12)
+        pygame.draw.circle(self.surf, WHITE, (self.width//2, self.height//2), 12)
         # Determining where the ball spawns
         self.rect = self.surf.get_rect(
             center=(
-                SCREEN_WIDTH - (SCREEN_WIDTH - (SCREEN_WIDTH//8)), 
-                SCREEN_HEIGHT // 2
+                self.posx, 
+                self.posy
             )
         )
     
     def update(self):
-        self.rect.move_ip(self.speed, 0)
-        if self.rect.left >= SCREEN_WIDTH:
+        self.posx = self.posx + (self.speed * self.xFac)
+        self.posy = self.posy + (self.speed * self.yFac)
+
+        self.rect = self.surf.get_rect(
+            center=(
+                self.posx, 
+                self.posy
+            )
+        )
+
+        if (self.posy <= 0) or (self.posy >= SCREEN_HEIGHT):
+            self.yFac = self.yFac * -1
+        if self.posx <= 0:
+            self.xFac = self.xFac * -1
+
+        if self.posx >= SCREEN_WIDTH:
             self.kill()
+
+
+    def reset(self):
+        self.posx = SCREEN_WIDTH - (SCREEN_WIDTH - (SCREEN_WIDTH//8))
+        self.posy = SCREEN_HEIGHT // 2
+
+        self.rect = self.surf.get_rect(
+            center=(
+                self.posx, 
+                self.posy
+            )
+        )
 
 
 
 pygame.init()
 
-SCREEN_WIDTH = 900
-SCREEN_HEIGHT = 600
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Weird Pong")
 
 # Initializing sprites
 player = Player()
@@ -102,6 +145,8 @@ while running:
         if event.type == KEYDOWN:
             if event.key == K_ESCAPE:
                 running = False
+            if event.key == K_LEFT:
+                ball.reset()
 
     
     pressed_keys = pygame.key.get_pressed()
@@ -111,7 +156,7 @@ while running:
     ball.update()
 
     # Filling the screen to black
-    screen.fill((0,0,0))
+    screen.fill(BLACK)
     
     # Blitting all sprites
     for entity in all_sprites:
