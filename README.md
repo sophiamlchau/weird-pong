@@ -9,3 +9,7 @@ Code and examples taken from:
 1. realpython.com: https://realpython.com/pygame-a-primer/
 1. geeksforgeeks.org: https://www.geeksforgeeks.org/create-a-pong-game-in-python-pygame/
 1. stackoverflow.com: https://stackoverflow.com/questions/61429734/how-to-create-a-circular-sprite-in-pygame
+1. makeuseof.com: https://www.makeuseof.com/pygame-game-scores-displaying-updating/
+
+## Acknowledgements
+I would like to acknowledge stackoverflow for carrying me in every aspect of my life
